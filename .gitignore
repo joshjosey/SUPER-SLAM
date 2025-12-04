@@ -1,1 +1,5 @@
-/results/*.txt
+/results/
+/build
+.vscode
+*.log
+notes.txt
