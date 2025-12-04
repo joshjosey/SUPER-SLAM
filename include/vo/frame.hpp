@@ -2,6 +2,7 @@
 #pragma once
 #include <opencv2/opencv.hpp>
 #include <string>
+#include "vo/feature.hpp"
 
 namespace vo
 {
@@ -16,6 +17,8 @@ namespace vo
         int id;
         cv::Mat left_img;
         cv::Mat right_img;
+        StereoFeatures features;
+        std::vector<cv::DMatch> temporal_matches;
 
         // Constructor
         /**

@@ -6,6 +6,9 @@
 #include "vo/kitti_loader.hpp"
 #include "vo/logger.hpp"
 #include "vo/viz.hpp"
+#include "vo/feature_tracker.hpp"
+#include "vo/feature.hpp"
+
 using namespace std;
 
 int main(int argc, char **argv)
@@ -33,8 +36,11 @@ int main(int argc, char **argv)
     string path_right = data_path + drive_date + "_drive_" + drive_number + "_sync" + "/image_01/data/";
     string calib_file = data_path + "/calib_cam_to_cam.txt";
 
-    // Start a general logger for main
+    // Initialize Helper Objects
+    vo::Visualizer viz(10);
     vo::Logger logger(output_path + "/logs/app.log");
+    vo::Logger stereo_logger(output_path + "/logs/stereo_matches_count.log");
+    vo::Logger temporal_logger(output_path + "/logs/temporal_matches_count.log");
     logger.log("Starting application...");
 
     // Load and log camera calibration data
@@ -43,6 +49,10 @@ int main(int argc, char **argv)
     logger.log("fx = " + to_string(cam.fx) + "  fy = " + to_string(cam.fy));
     logger.log("cx = " + to_string(cam.cx) + "  cy = " + to_string(cam.cy));
     logger.log("baseline = " + to_string(cam.baseline));
+
+    // Create a feature tracker
+    vo::FeatureTracker tracker;
+    logger.log("\nInitialized Feature Tracker");
 
     // Load images paths
     vector<string> left_image_paths = vo::load_image_paths(path_left);
@@ -81,10 +91,28 @@ int main(int argc, char **argv)
         frames.push_back(frame);
     }
     logger.log("Finished building " + to_string(frames.size()) + " frames");
-    vo::Visualizer viz(10);
-    for (auto f : frames)
+
+    // Perform feature matching across stereo and temporal pairs
+    logger.log("\nMatching points across stereo frame pairs...");
+
+    tracker.extractFeatures(frames[0]);
+    tracker.matchStereo(frames[0], cam);
+    stereo_logger.log("Found " + to_string(frames[0].features.stereo_matches.size()) + " stereo matches for frame 0");
+    for (size_t i = 1; i < frames.size(); i++)
     {
-        viz.showFrame(f);
+        // Extract features and match stereo pairs
+        tracker.extractFeatures(frames[i]);
+        tracker.matchStereo(frames[i], cam);
+        stereo_logger.log("Frame " + to_string(i) + ": " + to_string(frames[i].features.stereo_matches.size()));
+
+        // Match temporal features with previous frame
+        tracker.matchTemporal(frames[i], frames[i - 1], cam);
+        temporal_logger.log("Frame " + to_string(i) + "-" + to_string(i - 1) + ": " + to_string(frames[i].temporal_matches.size()));
+        // viz.showTemporalMatches(frames[i].left_img, frames[i - 1].left_img, frames[i].features.left.keypoints, frames[i - 1].features.left.keypoints, frames[i].temporal_matches);
+        // viz.showStereoMatches(frames[i]);
     }
+    logger.log("Done matching points across stereo frames");
+
+    logger.log("Application finished successfully");
     return 0;
 }

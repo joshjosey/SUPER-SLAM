@@ -39,6 +39,31 @@ namespace vo
          */
         void showFrame(const Frame &frame, const std::string &win_name = "Frame") const;
 
+        /**
+         * @brief Show stereo matches
+         * @param frame Frame to display
+         * @param win_name Window name (Optional)
+         */
+        void showStereoMatches(const Frame &frame, const std::string &win_name = "Stereo Matches") const;
+
+        /**
+         * @brief Show temporal matches between current and previous frames. (Left images)
+         * @param cur_frame Current frame
+         * @param prev_frame Previous frame
+         * @param win_name Window name (Optional)
+         */
+        void showTemporalMatches(const Frame &cur_frame, const Frame &prev_frame, const std::string &win_name = "Temporal Matches") const;
+        /**
+         * @brief Show temporal matches between current and previous frames. (Choose either left or right images)
+         * @param cur_image Current image
+         * @param prev_image Previous image
+         * @param cur_kp Keypoints in current image
+         * @param prev_kp Keypoints in previous image
+         * @param matches Matches between current and previous images
+         * @param win_name Window name (Optional)
+         */
+        void showTemporalMatches(const cv::Mat &cur_image, const cv::Mat &prev_image, const std::vector<cv::KeyPoint> &cur_kp, const std::vector<cv::KeyPoint> &prev_kp, std::vector<cv::DMatch> matches, const std::string &win_name = "Temporal Matches") const;
+
     private:
         // pause duration for cv::imshow
         int wait_time;

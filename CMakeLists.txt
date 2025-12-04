@@ -64,3 +64,5 @@ message(STATUS "Eigen3 Include Dir: ${EIGEN3_INCLUDE_DIR}")
 message(STATUS "yaml-cpp Include Dir: ${yaml-cpp_INCLUDE_DIRS}")
 message(STATUS "Source Files: ${SLAM_SOURCES}")
 message(STATUS "Build Complete!")
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
