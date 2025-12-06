@@ -1,1 +1,0 @@
-// epipolar, triangulation, SE3 utilities

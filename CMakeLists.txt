@@ -5,6 +5,7 @@ project(SUPER_SLAM)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_options(-Wall -Wextra)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # --- 2. Dependencies ---
 find_package(OpenCV REQUIRED)
@@ -25,7 +26,6 @@ include_directories(
 # Core sources (explicit files)
 set(SLAM_CORE_SRC
     src/camera.cpp
-    src/frame.cpp
     src/pnp_solver.cpp
 )
 # Other sources

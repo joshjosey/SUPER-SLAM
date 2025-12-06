@@ -10,6 +10,7 @@
 #include "vo/feature.hpp"
 #include "vo/pnp_solver.hpp"
 #include "vo/map.hpp"
+#include "vo/filter.hpp"
 
 using namespace std;
 
@@ -35,7 +36,8 @@ int main(int argc, char **argv)
 
     // vo::Logger stereo_logger(output_path + "/logs/stereo_matches_count.log");
     // vo::Logger temporal_logger(output_path + "/logs/temporal_matches_count.log");
-    vo::Logger pose_logger(output_path + "/logs/pose_estimation.log");
+    vo::Logger pose_logger_raw(output_path + "/logs/pose_estimation_raw.log");
+    vo::Logger pose_logger_smoothed(output_path + "/logs/pose_estimation_smoothed.log");
 
     // Build file paths
     string path_left = data_path + drive_date + "_drive_" + drive_number + "_sync" + "/image_00/data/";
@@ -69,6 +71,7 @@ int main(int argc, char **argv)
 
     // Process each stereo image pair as a frame
     vector<vo::Frame> frames;
+    vector<double> timestamps = vo::load_timestamps(data_path + drive_date + "_drive_" + drive_number + "_sync/oxts/timestamps.txt");
     logger.log("\nBuilding frames from image pairs...");
     for (size_t i = 0; i < left_image_paths.size() && i < right_image_paths.size(); ++i)
     {
@@ -82,7 +85,7 @@ int main(int argc, char **argv)
             continue;
         }
         // Push back a Frame object
-        frames.emplace_back(i, left_img, right_img);
+        frames.emplace_back(i, left_img, right_img, timestamps[i]);
     }
     logger.log("Built frames: " + to_string(frames.size()));
 
@@ -97,10 +100,14 @@ int main(int argc, char **argv)
         tracker.matchStereo(frames[0], cam);
         logger.log("saved pose");
 
-        frames[0].pose = cv::Mat::eye(4, 4, CV_64F);
-        frames[0].pose_accepted = true;
+        frames[0].pose_raw = cv::Mat::eye(4, 4, CV_64F);
+        frames[0].pose_smoothed = cv::Mat::eye(4, 4, CV_64F);
+        frames[0].is_pose_accepted = true;
     }
-    pose_logger.log("Frame 0: " + to_string(frames[0].pose.at<double>(0, 3)) + ", " + to_string(frames[0].pose.at<double>(1, 3)) + ", " + to_string(frames[0].pose.at<double>(2, 3)));
+    vo::KalmanFilter filter(100, 1.0, 0.1);
+    filter.initialize(frames[0].pose_raw);
+    pose_logger_raw.log("Frame 0: " + to_string(frames[0].pose_raw.at<double>(0, 3)) + ", " + to_string(frames[0].pose_raw.at<double>(1, 3)) + ", " + to_string(frames[0].pose_raw.at<double>(2, 3)));
+    pose_logger_smoothed.log("Frame 0: " + to_string(frames[0].pose_smoothed.at<double>(0, 3)) + ", " + to_string(frames[0].pose_smoothed.at<double>(1, 3)) + ", " + to_string(frames[0].pose_smoothed.at<double>(2, 3)));
     logger.log("Initialized first frame successfully");
 
     logger.log("\nParsing remaining frames...");
@@ -117,23 +124,35 @@ int main(int argc, char **argv)
 
         // Estimate pose using PnP
         cv::Mat R, t;
-        bool pose_estimated = pnp_solver.estimatePose(frames[i - 1], frames[i], cam, R, t);
-        if (pose_estimated)
+        bool pose_estimation_success = pnp_solver.estimatePose(frames[i - 1], frames[i], cam, R, t);
+
+        if (pose_estimation_success)
         {
             // Construct the 4x4 pose matrix
             cv::Mat relative_T = cv::Mat::eye(4, 4, CV_64F);
             R.copyTo(relative_T(cv::Rect(0, 0, 3, 3)));
             t.copyTo(relative_T(cv::Rect(3, 0, 1, 3)));
-            frames[i].pose = frames[i - 1].pose * relative_T.inv();
-            frames[i].pose_accepted = true;
-            pose_logger.log("Frame " + to_string(i) + ": " + to_string(frames[i].pose.at<double>(0, 3)) + ", " + to_string(frames[i].pose.at<double>(1, 3)) + ", " + to_string(frames[i].pose.at<double>(2, 3)));
+            frames[i].pose_raw = frames[i - 1].pose_raw * relative_T.inv();
+            frames[i].is_pose_accepted = true;
+            pose_logger_raw.log("Frame " + to_string(i) + ": " + to_string(frames[i].pose_raw.at<double>(0, 3)) + ", " + to_string(frames[i].pose_raw.at<double>(1, 3)) + ", " + to_string(frames[i].pose_raw.at<double>(2, 3)));
         }
         else
         {
             // If pose estimation failed, set to previous pose
-            frames[i].pose = frames[i - 1].pose.clone();
+            frames[i].pose_raw = frames[i - 1].pose_raw.clone();
             logger.log("Warning: Pose estimation failed for frame " + to_string(i) + ", setting to previous pose.");
         }
+
+        // Calculate dt
+        double dt = 0.1;
+        if (i < timestamps.size())
+        {
+            dt = timestamps[i] - timestamps[i - 1];
+        }
+
+        // Filter the estimated pose
+        frames[i].pose_smoothed = filter.process(frames[i].pose_raw, pose_estimation_success, dt);
+        pose_logger_smoothed.log("Frame " + to_string(i) + ": " + to_string(frames[i].pose_smoothed.at<double>(0, 3)) + ", " + to_string(frames[i].pose_smoothed.at<double>(1, 3)) + ", " + to_string(frames[i].pose_smoothed.at<double>(2, 3)));
     }
     logger.log("Done matching points across stereo frames");
 
@@ -141,7 +160,7 @@ int main(int argc, char **argv)
     vector<cv::Point3f> trajectory;
     for (const auto &frame : frames)
     {
-        trajectory.push_back(frame.getPosition());
+        trajectory.push_back(frame.getPosition("smoothed"));
     }
     viz.plotTrajectory2d(trajectory, "Estimated 2D Trajectory");
     logger.log("Application finished successfully");

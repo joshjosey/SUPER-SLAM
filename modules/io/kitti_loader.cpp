@@ -67,4 +67,40 @@ namespace vo
         f.close();
         return cam;
     }
+
+    std::vector<double> load_timestamps(const std::string &file_path)
+    {
+        std::vector<double> timestamps;
+        std::ifstream f(file_path);
+        if (!f)
+        {
+            std::cerr << "Failed to open timestamps file: " << file_path << std::endl;
+            return timestamps;
+        }
+
+        std::string line;
+        while (std::getline(f, line))
+        {
+            if (line.empty())
+                continue;
+
+            // Parse the HH:MM:SS.ns to get total seconds
+            // Find the space after date
+            size_t split = line.find(' ');
+            if (split == std::string::npos)
+                continue;
+
+            std::string time_str = line.substr(split + 1);
+
+            // Extract hours, minutes, seconds based on format
+            double h = std::stod(time_str.substr(0, 2));
+            double m = std::stod(time_str.substr(3, 2));
+            double s = std::stod(time_str.substr(6));
+
+            // Convert to total seconds
+            double total_seconds = h * 3600.0 + m * 60.0 + s;
+            timestamps.push_back(total_seconds);
+        }
+        return timestamps;
+    }
 }

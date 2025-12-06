@@ -17,6 +17,14 @@ namespace vo
     /**
      * @brief Load KITTI stereo camera calibration from file.
      * @param file Path to KITTI calibration file
+     * @return Camera object with loaded intrinsic parameters
      */
     Camera load_kitti_calib(const std::string &file_path);
+
+    /**
+     * @brief Load timestamps from a KITTI timestamp file.
+     * @param file Path to timestamp file
+     * @return Vector of timestamps in seconds
+     */
+    std::vector<double> load_timestamps(const std::string &file_path);
 }
