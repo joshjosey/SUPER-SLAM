@@ -3,6 +3,7 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 #include "vo/frame.hpp"
+
 namespace vo
 {
 
@@ -63,6 +64,13 @@ namespace vo
          * @param win_name Window name (Optional)
          */
         void showTemporalMatches(const cv::Mat &cur_image, const cv::Mat &prev_image, const std::vector<cv::KeyPoint> &cur_kp, const std::vector<cv::KeyPoint> &prev_kp, std::vector<cv::DMatch> matches, const std::string &win_name = "Temporal Matches") const;
+
+        /**
+         * @brief Plot the trajectory in 2d (XZ frame) using matplotlibcpp
+         * @param positions 3d positions
+         * @param title Plot title (optinal)
+         */
+        void plotTrajectory2d(const std::vector<cv::Point3f> &positions, const std::string &title = "2D Plot") const;
 
     private:
         // pause duration for cv::imshow

@@ -1,6 +1,7 @@
 #include "vo/viz.hpp"
 #include <opencv2/opencv.hpp>
 #include <vo/frame.hpp>
+#include "matplotlibcpp.h"
 using namespace std;
 namespace vo
 {
@@ -51,5 +52,24 @@ namespace vo
                         matches, match_img);
         cv::imshow(win_name, match_img);
         cv::waitKey(wait_time);
+    }
+    
+    void Visualizer::plotTrajectory2d(const std::vector<cv::Point3f> &positions, const std::string &title) const
+    {
+        namespace plt = matplotlibcpp;
+        std::vector<double> x, y;
+        for (const auto &pos : positions)
+        {
+            x.push_back(pos.x);
+            y.push_back(pos.z); // Use Z for depth
+        }
+        plt::figure();
+        plt::plot(x, y);
+        plt::title(title);
+        plt::xlabel("X (meters)");
+        plt::ylabel("Z (meters)");
+        plt::axis("equal");
+        plt::grid(true);
+        plt::save("/app/results/trajectory.png");
     }
 }

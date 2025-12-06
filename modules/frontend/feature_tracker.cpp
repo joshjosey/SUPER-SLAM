@@ -34,9 +34,11 @@ namespace vo
     // Match stereo features within a frame
     void FeatureTracker::matchStereo(Frame &frame, Camera &cam)
     {
+        frame.features.points_3d.assign(frame.features.left.keypoints.size(), cv::Point3f(0, 0, 0));
+        frame.features.track_2d_3d_idx.assign(frame.features.left.keypoints.size(), -1);
+
         vector<cv::DMatch> init_matches;
         bf_matcher.match(frame.features.left.descriptors, frame.features.right.descriptors, init_matches);
-
         // Stereo matches will deal with 3d point computation, filter out matches that cannot provide depth information
         for (auto &match : init_matches)
         {
@@ -48,37 +50,21 @@ namespace vo
             if (disparity > 0)
             {
                 float Z = static_cast<float>(cam.fx * cam.baseline / disparity);
+                // Potentially add filtering on Z here
                 float X = (left_kp.pt.x - cam.cx) * Z / cam.fx;
                 float Y = (left_kp.pt.y - cam.cy) * Z / cam.fy;
                 cv::Point3f pt(X, Y, Z);
-                frame.features.points_3d.push_back(pt);
+
+                frame.features.points_3d[match.queryIdx] = cv::Point3f(X, Y, Z);
                 frame.features.stereo_matches.push_back(match);
+                frame.features.track_2d_3d_idx[match.queryIdx] = static_cast<int>(frame.features.points_3d.size()) - 1;
             }
         }
     }
 
     // Match temporal features between current and previous frames (using left images)
-    void FeatureTracker::matchTemporal(Frame &cur_frame, Frame &prev_frame, Camera &cam)
+    void FeatureTracker::matchTemporal(Frame &cur_frame, Frame &prev_frame)
     {
         bf_matcher.match(prev_frame.features.left.descriptors, cur_frame.features.left.descriptors, cur_frame.temporal_matches);
-
-        // Extract matched points for essential matrix computation
-        std::vector<cv::Point2f> prev_match_pts, cur_match_pts;
-        for (const auto &m : cur_frame.temporal_matches)
-        {
-            prev_match_pts.push_back(prev_frame.features.left.keypoints[m.queryIdx].pt);
-            cur_match_pts.push_back(cur_frame.features.left.keypoints[m.trainIdx].pt);
-        }
-
-        // Find essential matrix and filter matches using RANSAC
-        std::vector<uchar> inlier_mask;
-        cv::Mat E = cv::findEssentialMat(prev_match_pts, cur_match_pts, cam.fx, cv::Point2d(cam.cx, cam.cy), cv::RANSAC, 0.99, 1.0, inlier_mask);
-        std::vector<cv::DMatch> filtered_matches;
-        for (size_t i = 0; i < cur_frame.temporal_matches.size(); ++i)
-        {
-            if (inlier_mask[i])
-                filtered_matches.push_back(cur_frame.temporal_matches[i]);
-        }
-        cur_frame.temporal_matches = filtered_matches;
     }
 }

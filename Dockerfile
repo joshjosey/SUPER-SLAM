@@ -22,7 +22,15 @@ RUN apt-get update && apt-get install -y \
     libeigen3-dev \
     # - libyaml-cpp-dev: For parsing your .yaml config files
     libyaml-cpp-dev \
+    # -  Python3 and related packages for matplotlib
+    python3 \
+    python3-dev \
+    python3-pip \
+    python3-numpy \
     && rm -rf /var/lib/apt/lists/*
+
+# Install matplotlib using pip
+RUN pip3 install matplotlib
 
 # Set the working directory inside the container
 WORKDIR /app

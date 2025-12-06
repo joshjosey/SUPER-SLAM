@@ -10,12 +10,15 @@ add_compile_options(-Wall -Wextra)
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(Python3 COMPONENTS Development NumPy REQUIRED)
 
 # --- 3. Include Directories ---
 include_directories(
     include
     ${OpenCV_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIR}
+    ${Python3_INCLUDE_DIRS}
+    ${Python3_NumPy_INCLUDE_DIRS}
 )
 
 # --- 4. Define Source Files ---
@@ -23,6 +26,7 @@ include_directories(
 set(SLAM_CORE_SRC
     src/camera.cpp
     src/frame.cpp
+    src/pnp_solver.cpp
 )
 # Other sources
 file(GLOB IO_MODULE_SRC modules/io/*.cpp)
@@ -47,6 +51,7 @@ add_library(super_slam_lib ${SLAM_SOURCES})
 target_link_libraries(super_slam_lib
     ${OpenCV_LIBS}
     yaml-cpp
+    Python3::Python
 )
 
 # --- 6. Create Executable ---
@@ -55,6 +60,7 @@ add_executable(super_slam src/main.cpp)
 target_link_libraries(super_slam
     super_slam_lib
     ${OpenCV_LIBS}
+    Python3::Python
 )
 
 # --- 7. Messages ---
@@ -62,6 +68,8 @@ message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "OpenCV Version: ${OpenCV_VERSION}")
 message(STATUS "Eigen3 Include Dir: ${EIGEN3_INCLUDE_DIR}")
 message(STATUS "yaml-cpp Include Dir: ${yaml-cpp_INCLUDE_DIRS}")
+message(STATUS "Python Include Dirs: ${Python3_INCLUDE_DIRS}")
+message(STATUS "NumPy Include Dirs: ${Python3_NumPy_INCLUDE_DIRS}")
 message(STATUS "Source Files: ${SLAM_SOURCES}")
 message(STATUS "Build Complete!")
 

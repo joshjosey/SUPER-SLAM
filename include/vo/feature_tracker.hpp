@@ -56,7 +56,7 @@ namespace vo
          * @param prev_frame Previous frame
          * @param cam Camera object with intrinsic parameters 
          */
-        void matchTemporal(Frame &cur_frame, Frame &prev_frame, Camera &cam);
+        void matchTemporal(Frame &cur_frame, Frame &prev_frame);
 
     private:
         // Parameters

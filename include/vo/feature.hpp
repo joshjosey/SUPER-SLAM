@@ -15,6 +15,8 @@ namespace vo
     public:
         std::vector<cv::KeyPoint> keypoints;
         cv::Mat descriptors;
+
+        Features() = default;
     };
 
     /**
@@ -27,5 +29,8 @@ namespace vo
         Features right;
         std::vector<cv::DMatch> stereo_matches;
         std::vector<cv::Point3f> points_3d;
+        std::vector<int> track_2d_3d_idx;
+
+        StereoFeatures() = default;
     };
 }
