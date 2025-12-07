@@ -2,6 +2,7 @@
 #include <opencv2/opencv.hpp>
 #include <vo/frame.hpp>
 #include "matplotlibcpp.h"
+#include <filesystem>
 using namespace std;
 namespace vo
 {
@@ -53,9 +54,14 @@ namespace vo
         cv::imshow(win_name, match_img);
         cv::waitKey(wait_time);
     }
-    
-    void Visualizer::plotTrajectory2d(const std::vector<cv::Point3f> &positions, const std::string &title) const
+
+    void Visualizer::plotTrajectory2d(const std::vector<cv::Point3f> &positions, const std::string &title, const std::string &output_file) const
     {
+        std::filesystem::path path_obj(output_file);
+        if (path_obj.has_parent_path())
+        {
+            std::filesystem::create_directories(path_obj.parent_path());
+        }
         namespace plt = matplotlibcpp;
         std::vector<double> x, y;
         for (const auto &pos : positions)
@@ -70,6 +76,6 @@ namespace vo
         plt::ylabel("Z (meters)");
         plt::axis("equal");
         plt::grid(true);
-        plt::save("/app/results/trajectory.png");
+        plt::save(output_file);
     }
 }

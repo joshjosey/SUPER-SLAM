@@ -48,6 +48,38 @@ namespace vo
                 return cv::Point3f(pose_smoothed.at<double>(0, 3), pose_smoothed.at<double>(1, 3), pose_smoothed.at<double>(2, 3));
             }
         }
-    };
 
+        /**
+         * @brief Converts the pose matrix into a string
+         * @param mode The raw or smoothed pose
+         * @returns A string vector of the pose
+         */
+        std::string getPoseMatString(std::string mode)
+        {
+            cv::Mat pose;
+            if (mode == "raw")
+            {
+                pose = pose_raw;
+            }
+            else
+            {
+                pose = pose_smoothed;
+            }
+            std::stringstream ss;
+            // Iterate over the first 3 rows and all 4 columns
+            for (int row = 0; row < 3; ++row)
+            {
+                for (int col = 0; col < 4; ++col)
+                {
+                    ss << pose.at<double>(row, col);
+                    // Add space if it's not the last element
+                    if (!(row == 2 && col == 3))
+                    {
+                        ss << " ";
+                    }
+                }
+            }
+            return ss.str();
+        }
+    };
 }

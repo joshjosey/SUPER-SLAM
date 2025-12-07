@@ -10,7 +10,7 @@ namespace vo
          * @brief Construct a Kalman Filter with standard matrices.
          * State vector is 6x1: [x, y, z, vx, vy, vz]
          */
-        KalmanFilter(double initial_uncertainty = 100, double process_noise = 1, double measurement_noise = 1, double motion_gate_threshold = 2.0);
+        KalmanFilter(double initial_uncertainty = 100, double process_noise = 0.01, double measurement_noise = 0.1, double motion_gate_threshold = 2.0);
 
         /**
          * @brief Initialize the filter state.

@@ -1,6 +1,6 @@
 /results/
+/results_old/
 /build
 .vscode
 *.log
 notes.txt
-/utils/

@@ -3,6 +3,7 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 #include "vo/frame.hpp"
+#include <filesystem>
 
 namespace vo
 {
@@ -69,8 +70,9 @@ namespace vo
          * @brief Plot the trajectory in 2d (XZ frame) using matplotlibcpp
          * @param positions 3d positions
          * @param title Plot title (optinal)
+         * @param output_file File path to save the plot (optional)
          */
-        void plotTrajectory2d(const std::vector<cv::Point3f> &positions, const std::string &title = "2D Plot") const;
+        void plotTrajectory2d(const std::vector<cv::Point3f> &positions, const std::string &title = "2D Plot", const std::string &output_file = "trajectory.png") const;
 
     private:
         // pause duration for cv::imshow

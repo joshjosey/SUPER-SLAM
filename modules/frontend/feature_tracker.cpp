@@ -6,7 +6,7 @@ using namespace std;
 namespace vo
 {
     // Constructor
-    FeatureTracker::FeatureTracker(int orb_features, int orb_fast_threshold) : orb_features(orb_features), orb_fast_threshold(orb_fast_threshold)
+    FeatureTracker::FeatureTracker(int orb_features, int orb_fast_threshold, float max_match_distance) : orb_features(orb_features), orb_fast_threshold(orb_fast_threshold), max_match_distance(max_match_distance)
     {
         orb = cv::ORB::create(orb_features, 1.2f, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, orb_fast_threshold);
         bf_matcher = cv::BFMatcher(cv::NORM_HAMMING, true);
@@ -50,7 +50,11 @@ namespace vo
             if (disparity > 0)
             {
                 float Z = static_cast<float>(cam.fx * cam.baseline / disparity);
-                // Potentially add filtering on Z here
+                // Check if the depth is within valid range
+                if (Z < 0 || Z > max_match_distance)
+                {
+                    continue;
+                }
                 float X = (left_kp.pt.x - cam.cx) * Z / cam.fx;
                 float Y = (left_kp.pt.y - cam.cy) * Z / cam.fy;
                 cv::Point3f pt(X, Y, Z);

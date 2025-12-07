@@ -13,8 +13,13 @@ namespace vo
         /**
          * @brief Construct a PnP solver for pose estimation
          * @param min_pnp_pts The minimum number of points PnP should use to generate valid poses
+         * @param useExtrensicGuess Whether to use an initial guess for the pose
+         * @param iterations Number of RANSAC iterations
+         * @param reprojection_error Reprojection error threshold for RANSAC in pixels
+         * @param confidence RANSAC confidence level
          */
-        PnPSolver(int min_pnp_pts = 4) : min_pnp_pts(min_pnp_pts) {}
+        PnPSolver(int min_pnp_pts = 4, bool useExtrensicGuess = false, int iterations = 100, double reprojection_error = 8.0, double confidence = 0.99) 
+            : min_pnp_pts(min_pnp_pts), useExtrensicGuess(useExtrensicGuess), iterations(iterations), reprojection_error(reprojection_error), confidence(confidence) {}
 
         /**
          * @brief Extrcts corresponding 3d points from the previous frame and 2d points from the current frame
@@ -37,5 +42,9 @@ namespace vo
 
     private:
         int min_pnp_pts;
+        bool useExtrensicGuess;
+        int iterations;
+        double reprojection_error;
+        double confidence;
     };
 }

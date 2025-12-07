@@ -4,7 +4,8 @@
 
 namespace vo
 {
-    KalmanFilter::KalmanFilter(double initial_uncertainty, double process_noise, double measurement_noise)
+    KalmanFilter::KalmanFilter(double initial_uncertainty, double process_noise, double measurement_noise, double motion_gate_threshold)
+        : motion_gate_threshold(motion_gate_threshold)
     {
         // Initialize State (6x1)
         state = cv::Mat::zeros(6, 1, CV_64F);

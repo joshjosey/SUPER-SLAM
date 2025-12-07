@@ -40,8 +40,8 @@ namespace vo
         cv::Mat rvec, tvec;
         cv::Mat inlier_mask;
         bool pose_flag = cv::solvePnPRansac(points_3d, points_2d, cam.K(),
-                                            cv::noArray(), rvec, t, false,
-                                            100, 8.0, 0.99, inlier_mask);
+                                            cv::noArray(), rvec, t, useExtrensicGuess,
+                                            iterations, reprojection_error, confidence, inlier_mask);
 
         // Make sure there are enough inliers, the pose is ok
         if (!pose_flag || inlier_mask.rows < (min_pnp_pts/2)) return false;

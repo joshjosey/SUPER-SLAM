@@ -1,0 +1,23 @@
+dataset:
+  root_path: "/data/2011_09_30/"  # Path to the KITTI dataset root
+  drive_date: "2011_09_30"        # Date of the drive
+  drive_number: "0016"            # Drive number
+  output_path: "/app/results/2011_09_30_drive_0016/"     # Path to save results
+
+feature_tracker:
+  num_features: 3000       # Increase for more points, decrease for speed
+  fast_threshold: 20       # FAST corner detection threshold
+  max_depth: 40.0          # Max depth for feature points (in meters)
+
+pnp_solver:
+  min_inliers: 4              # Minimum inliers to accept pose
+  use_extrinsic_guess: false  # Whether to use an initial guess
+  ransac_iterations: 100      # Number of RANSAC iterations
+  reprojection_error: 1.0     # Max reprojection error in pixels
+  confidence: 0.99            # RANSAC confidence level
+
+kalman_filter:
+  initial_uncertainty: 100.0  # Initial uncertainty in the Kalman filter
+  process_noise: 0.01         # Process noise covariance
+  measurement_noise: 0.1      # Measurement noise covariance
+  motion_gate_dist: 2.0       # Outlier rejection gate

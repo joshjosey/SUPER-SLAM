@@ -17,8 +17,9 @@ namespace vo
          * @brief Construct a Feature Tracker with given parameters.
          * @param orb_features Number of ORB features to detect
          * @param orb_fast_threshold FAST threshold for ORB feature detection, lower values yield more features
+         * @param max_match_distance Maximum distance for valid stereo matches in depth (Z) direction
          */
-        FeatureTracker(int orb_features = 1000, int orb_fast_threshold = 20);
+        FeatureTracker(int orb_features = 1000, int orb_fast_threshold = 20, float max_match_distance = 50.0f);
 
         // Methods
         /**
@@ -46,7 +47,7 @@ namespace vo
         /**
          * @brief Match stereo features within a frame.
          * @param frame Frame containing stereo images
-         * @param cam Camera object with intrinsic parameters 
+         * @param cam Camera object with intrinsic parameters
          */
         void matchStereo(Frame &frame, Camera &cam);
 
@@ -54,7 +55,7 @@ namespace vo
          * @brief Match temporal features between current and previous frames.
          * @param cur_frame Current frame
          * @param prev_frame Previous frame
-         * @param cam Camera object with intrinsic parameters 
+         * @param cam Camera object with intrinsic parameters
          */
         void matchTemporal(Frame &cur_frame, Frame &prev_frame);
 
@@ -62,6 +63,7 @@ namespace vo
         // Parameters
         int orb_features;
         int orb_fast_threshold;
+        float max_match_distance;
 
         // ORB detector and Matcher
         cv::Ptr<cv::ORB> orb;

@@ -26,11 +26,15 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-dev \
     python3-pip \
-    python3-numpy \
     && rm -rf /var/lib/apt/lists/*
 
-# Install matplotlib using pip
-RUN pip3 install matplotlib
+# Install python packages via pip
+RUN pip3 install --no-cache-dir \
+    pykitti \
+    numpy \
+    matplotlib \
+    scipy \
+    opencv-python-headless
 
 # Set the working directory inside the container
 WORKDIR /app
