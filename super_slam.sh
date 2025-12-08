@@ -106,6 +106,8 @@ python3 "$EVAL_SCRIPT" \
     --date "$DATE" \
     --drive "$DRIVE" \
     --output "$OUTPUT_DIR/plots"
+# 3D Trajectory Plot
+# python3 ./utils/plot_3d.py --input "$TRAJ_FILE" --output "$OUTPUT_DIR/plots/trajectory_3d.png"
 
 if [ $? -ne 0 ]; then
     echo "Evaluation script failed!"

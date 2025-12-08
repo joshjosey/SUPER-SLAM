@@ -5,7 +5,7 @@ dataset:
   output_path: "/app/results/2011_09_26_drive_0005/"     # Path to save results
 
 feature_tracker:
-  num_features: 3000       # Increase for more points, decrease for speed
+  num_features: 1500       # Increase for more points, decrease for speed
   fast_threshold: 20       # FAST corner detection threshold
   max_depth: 40.0          # Max depth for feature points (in meters)
 

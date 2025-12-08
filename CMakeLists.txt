@@ -32,7 +32,6 @@ set(SLAM_CORE_SRC
 file(GLOB IO_MODULE_SRC modules/io/*.cpp)
 file(GLOB FRONTEND_MODULE_SRC modules/frontend/*.cpp)
 file(GLOB BACKEND_MODULE_SRC modules/backend/*.cpp)
-file(GLOB GEOMETRY_MODULE_SRC modules/geometry/*.cpp)
 file(GLOB VIZ_MODULE_SRC modules/viz/*.cpp)
 
 # Combine all sources
@@ -41,7 +40,6 @@ set(SLAM_SOURCES
     ${IO_MODULE_SRC}
     ${FRONTEND_MODULE_SRC}
     ${BACKEND_MODULE_SRC}
-    ${GEOMETRY_MODULE_SRC}
     ${VIZ_MODULE_SRC}
 )
 
